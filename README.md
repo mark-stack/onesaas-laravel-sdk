@@ -32,3 +32,48 @@ If testing locally:
 
 ```bash
 composer config repositories.onesaas-sso '{"type": "path", "url": "/path/to/onesaas-laravel-sdk"}'
+```
+
+```bash
+composer require markevans/onesaas-laravel-sdk:dev-main --prefer-source
+```
+
+```bash
+ONESAAS_SECRET=your_shared_secret_here
+```
+
+```bash
+https://yourapp.com/onesaas/login?email=user@example.com&name=John+Smith&onesaas_key=SHARED_SECRET
+```
+
+```bash
+php artisan vendor:publish --tag=onesaas-php-sdk
+```
+
+### The SDK will:
+- Validate the secret key
+- Find or create the user
+- Log them in
+- Redirect them to your dashboard (or another location you specify)
+
+### The package automatically registers:
+GET /onesaas/login
+
+### Example SSO URL
+https://yourapp.com/onesaas/login?email=example@gmail.com&name=Bob+Down&onesaas_key=YOUR_SECRET
+
+```bash
+$response = Http::post('https://yourapp.com/api/onesaas/auth', [
+    'onesaas_key' => config('services.onesaas.secret'),
+    'email' => "example@gmail.com",
+    'name' => "Bob Down",
+]);
+
+$data = $response->json();
+```
+
+### Security
+- Validates all incoming secrets
+- Rejects missing or incorrect keys
+- Does not expose sensitive user data
+- Easily extended (HMAC signing, timestamps, nonce, etc.)
