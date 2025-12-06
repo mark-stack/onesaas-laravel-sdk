@@ -35,7 +35,7 @@ composer config repositories.onesaas-sso '{"type": "path", "url": "/path/to/ones
 ```
 
 ```bash
-composer require markevans/onesaas-laravel-sdk:dev-main --prefer-source
+composer require markevans/onesaas-laravel-sdk:"dev-main"
 ```
 
 ```bash
