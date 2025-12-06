@@ -1,0 +1,21 @@
+{
+    "name": "markevans/onesaas-laravel-sdk",
+    "description": "Laravel SDK for SAAS vendors",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Markevans\\OnesaasLaravelSdk\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mark Evans"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+      "php": ">=8.0",
+      "illuminate/support": "^10.0"
+    }
+}
