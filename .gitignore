@@ -1,3 +1,4 @@
+# macOS Finder junk files
 .DS_Store
+*/.DS_Store
 vendor/.DS_Store
-vendor/**/.DS_Store
