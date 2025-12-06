@@ -3,8 +3,11 @@
 namespace Illuminate\Support\Traits;
 
 use Closure;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Reflector;
 use ReflectionFunction;
+use ReflectionIntersectionType;
+use ReflectionUnionType;
 use RuntimeException;
 
 trait ReflectsClosures
@@ -46,13 +49,17 @@ trait ReflectsClosures
     {
         $reflection = new ReflectionFunction($closure);
 
-        $types = collect($reflection->getParameters())->mapWithKeys(function ($parameter) {
-            if ($parameter->isVariadic()) {
-                return [$parameter->getName() => null];
-            }
+        $types = (new Collection($reflection->getParameters()))
+            ->mapWithKeys(function ($parameter) {
+                if ($parameter->isVariadic()) {
+                    return [$parameter->getName() => null];
+                }
 
-            return [$parameter->getName() => Reflector::getParameterClassNames($parameter)];
-        })->filter()->values()->all();
+                return [$parameter->getName() => Reflector::getParameterClassNames($parameter)];
+            })
+            ->filter()
+            ->values()
+            ->all();
 
         if (empty($types)) {
             throw new RuntimeException('The given Closure has no parameters.');
@@ -77,12 +84,43 @@ trait ReflectsClosures
     {
         $reflection = new ReflectionFunction($closure);
 
-        return collect($reflection->getParameters())->mapWithKeys(function ($parameter) {
-            if ($parameter->isVariadic()) {
-                return [$parameter->getName() => null];
-            }
+        return (new Collection($reflection->getParameters()))
+            ->mapWithKeys(function ($parameter) {
+                if ($parameter->isVariadic()) {
+                    return [$parameter->getName() => null];
+                }
 
-            return [$parameter->getName() => Reflector::getParameterClassName($parameter)];
-        })->all();
+                return [$parameter->getName() => Reflector::getParameterClassName($parameter)];
+            })
+            ->all();
+    }
+
+    /**
+     * Get the class names / types of the return type of the given Closure.
+     *
+     * @param  \Closure  $closure
+     * @return list<class-string>
+     *
+     * @throws \ReflectionException
+     */
+    protected function closureReturnTypes(Closure $closure)
+    {
+        $reflection = new ReflectionFunction($closure);
+
+        if ($reflection->getReturnType() === null ||
+            $reflection->getReturnType() instanceof ReflectionIntersectionType) {
+            return [];
+        }
+
+        $types = $reflection->getReturnType() instanceof ReflectionUnionType
+            ? $reflection->getReturnType()->getTypes()
+            : [$reflection->getReturnType()];
+
+        return (new Collection($types))
+            ->reject(fn ($type) => $type->isBuiltin())
+            ->reject(fn ($type) => in_array($type->getName(), ['static', 'self']))
+            ->map(fn ($type) => $type->getName())
+            ->values()
+            ->all();
     }
 }

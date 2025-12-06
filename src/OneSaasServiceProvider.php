@@ -11,8 +11,16 @@ class OneSaasServiceProvider extends ServiceProvider
         //
     }
 
-    public function boot()
+    public function boot(): void
     {
-        // This is where your SDK registers routes, commands, etc.
+        // Register routes
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
+
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Commands\TestLinkCommand::class,
+            ]);
+        }
     }
 }
